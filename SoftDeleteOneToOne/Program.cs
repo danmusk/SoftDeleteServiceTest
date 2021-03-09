@@ -12,16 +12,14 @@ namespace SoftDeleteOneToOne
 		static void Main()
 		{
 			int clientId;
-			var connectionString = "Server=(LocalDB)\\MSSQLLocalDB;Database=MyLocalDb;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-			using (var dbContext = new MyDbContext(connectionString))
+			using (var dbContext = new MyDbContext())
 			{
 				dbContext.Database.Migrate();
 				var client = new Client()
 				{
 					Name = Guid.NewGuid().ToString(),
 					CreatedByUserId = 1 // Seeded in DbContext
-					
 				};
 				dbContext.Add(client);
 				dbContext.SaveChanges();
@@ -29,7 +27,7 @@ namespace SoftDeleteOneToOne
 				clientId = client.Id;
 			}
 
-			using (var dbContext = new MyDbContext(connectionString))
+			using (var dbContext = new MyDbContext())
 			{
 				var dbClient = dbContext.Clients.First(x => x.Id == clientId);
 				var softDeleteConfiguration = new ConfigSoftDeleted(dbContext);

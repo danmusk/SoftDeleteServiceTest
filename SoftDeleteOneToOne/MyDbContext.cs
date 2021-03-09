@@ -9,9 +9,9 @@ namespace SoftDeleteOneToOne
     {
         private readonly string _connectionString;
 
-        public MyDbContext(string connectionString)
+        public MyDbContext()
         {
-            _connectionString = connectionString;
+            _connectionString = "Server=(LocalDB)\\MSSQLLocalDB;Database=MyLocalDb;Trusted_Connection=True;MultipleActiveResultSets=true";
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,13 +24,15 @@ namespace SoftDeleteOneToOne
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-	        modelBuilder.Entity<ApplicationUser>().HasData(new ApplicationUser {Id = 1, Username = "Amund"});
+	        base.OnModelCreating(modelBuilder);
 
-            // Required for Identity
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ApplicationUser>().HasData(new ApplicationUser {Id = 1, Username = "Amund"});
 
-            // Disable CascadeDelete
-            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            // Add all EntityConfigurations from this assembly
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(MyDbContext).Assembly);
+
+			// Disable CascadeDelete
+			foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
